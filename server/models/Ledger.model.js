@@ -1,5 +1,7 @@
+const mongoose = require('mongoose');
+const Schema = mongoose.Schema;
 // Ledger Schema
-const LedgerSchema = new Schema({
+const LedgerSchema = new mongoose.Schema({
     transactionId: { type: String, required: true, unique: true }, // Unique identifier for the transaction
     date: { type: Date, default: Date.now }, // Date of the transaction
     description: { type: String, required: true }, // Description of the transaction

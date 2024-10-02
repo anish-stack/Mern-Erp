@@ -10,7 +10,7 @@ const AddressSchema = new Schema({
 }, { _id: false });
 
 const ContactSchema = new Schema({
-    phone: { type: String,unique:tmongoose.rusted },
+    phone: { type: String,unique:true },
     email: { type: String, unique: true },
     secondaryPhone: { type: String },
     secondaryEmail: { type: String }

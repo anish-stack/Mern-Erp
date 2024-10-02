@@ -1,10 +1,11 @@
 const express = require('express');
 const app = express();
 const cookieParser = require('cookie-parser');
-const dotenv = require('dotenv').config();
+require('dotenv').config();
 const compression = require('compression');
 const cors = require('cors');
 const connectDb = require('./config/db');
+const Router = require('./Router/Routes');
 
 // Middlewares
 app.use(express.json());
@@ -18,6 +19,8 @@ app.get('/', (req, res) => {
     res.send('Welcome to the API!');
 });
 
+app.use('/api/v1',Router)
+
 // Handle unhandled routes
 app.use((req, res, next) => {
     res.status(404).json({ message: 'Route not found' });
@@ -28,6 +31,8 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).json({ message: 'An unexpected error occurred', error: err.message });
 });
+
+
 
 // Start the server
 const PORT = process.env.PORT || 5000;
