@@ -3,10 +3,18 @@ const Schema = mongoose.Schema;
 
 // Item Schema for the quotation
 const ItemSchema = new Schema({
-    item_id: {},
-    description: { type: String },
-    quantity: { type: Number, required: true },
-    anyDiscount: {
+    id: {
+
+    },
+    NameOfProduct: {
+        type: String
+    },
+    UnitPrice:{
+        type: String
+    },
+    Description: { type: String },
+    Quantity: { type: String, required: true },
+    Discount: {
         type: String
     }
 
@@ -14,10 +22,10 @@ const ItemSchema = new Schema({
 
 // Quotation Schema
 const QuotationSchema = new Schema({
-    BusinessOwnerDetails:{
-        type: Schema.Types.ObjectId, ref: 'Business', required: true 
+    BusinessOwnerDetails: {
+        type: Schema.Types.ObjectId, ref: 'Business', required: true
     },
-    quotationNumber: { type: String, required: true, unique: true },  //QUA
+    quotationNumber: { type: String, required: true, unique: true },
     customerId: { type: Schema.Types.ObjectId, ref: 'Customer', required: true },
     items: [ItemSchema],
     totalAmount: { type: Number, required: true },
@@ -26,9 +34,12 @@ const QuotationSchema = new Schema({
         enum: ['Draft', 'Sent', 'Accepted', 'Rejected', 'Expired'],
         default: 'Draft'
     },
-    Roles:[{type: String}],
+    PaymentTerms: {
+        type: Schema.Types.ObjectId, ref: 'Business',
+    },
+    Roles: [{ type: String }],
 
-    validityPeriod: { type: Date, required: true }   // Validation date
+    validityPeriod: { type: Date, required: true }
 }, { timestamps: true });
 
 

@@ -1,39 +1,36 @@
 const mongoose = require('mongoose');
-const Schema = mongoose.Schema;
 
-// Address Schema for the business
-const AddressSchema = new Schema({
-  street: { type: String, required: true },
-  city: { type: String, required: true },
-  state: { type: String, required: true },
-  postalCode: { type: String, required: true },
-  country: { type: String, required: true }
-}, { _id: false });
+const addressSchema = new mongoose.Schema({
+    street: { type: String, required: true },
+    city: { type: String, required: true },
+    state: { type: String, required: true },
+    postalCode: { type: String, required: true },
+    country: { type: String, required: true },
+});
 
-// Business Schema
-const BusinessSchema = new Schema({
-  businessLogo: {
-    type: String,
-    required: true
-  },
-  businessName: { type: String, required: true, unique: true },
-  ownerName: { type: String, required: true },
-  email: { type: String, required: true, unique: true },
-  contactNumber: { type: String, required: true },
-  gstNumber: { type: String, required: true },
-  panNumber: { type: String, required: true },
-  address: { type: AddressSchema, required: true },
-  discountRules: {
-    percentage: { type: Number, min: 0, max: 100 },
-    applicableOn: { type: String, enum: ['All', 'Specific Products'], default: 'All' },
+const discountRulesSchema = new mongoose.Schema({
+    percentage: { type: String },
+    applicableOn: { type: String },
     startDate: { type: Date },
-    endDate: { type: Date }
-  },
-  AllRoles:[{type: String}],
+    endDate: { type: Date },
+});
 
-  paymentTerms: [{ type: String }] // Array to hold payment terms
-}, { timestamps: true });
+const paymentTermSchema = new mongoose.Schema({
+    term: { type: String, required: true }
+});
 
-const Business = mongoose.model('Business', BusinessSchema);
+const businessSchema = new mongoose.Schema({
+    businessLogo: { type: String, required: true },
+    businessName: { type: String, required: true },
+    ownerName: { type: String, required: true },
+    email: { type: String, required: true, unique: true },
+    contactNumber: { type: String, required: true },
+    gstNumber: { type: String },
+    panNumber: { type: String },
+    address: addressSchema,
+    discountRules: discountRulesSchema,
+    paymentTerms: [paymentTermSchema] 
+});
 
+const Business = mongoose.model('Business', businessSchema);
 module.exports = Business;

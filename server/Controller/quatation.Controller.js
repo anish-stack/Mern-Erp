@@ -1,5 +1,5 @@
 const Quotation = require('../models/Quatation.model'); // Adjust the path to your Quotation model
-
+const { v4: uuidv4 } = require('uuid');
 // Create a new quotation
 exports.createQuotation = async (req, res) => {
     try {
@@ -10,17 +10,15 @@ exports.createQuotation = async (req, res) => {
             items,
             totalAmount,
             status,
-            validityPeriod,
             Roles
         } = req.body;
-
+        
         const emptyFields = [];
         if (!BusinessOwnerDetails) emptyFields.push('BusinessOwnerDetails');
         if (!quotationNumber) emptyFields.push('quotationNumber');
         if (!customerId) emptyFields.push('customerId');
         if (!items || items.length === 0) emptyFields.push('items');
         if (!totalAmount) emptyFields.push('totalAmount');
-        if (!validityPeriod) emptyFields.push('validityPeriod');
 
         if (emptyFields.length > 0) {
             return res.status(400).json({
@@ -29,15 +27,29 @@ exports.createQuotation = async (req, res) => {
             });
         }
 
+        // Check if the quotation number already exists
+        let checkExisit = await Quotation.findOne({ quotationNumber });
+        let finalQuotationNumber = quotationNumber;
+
+        // If a duplicate is found, generate a new unique quotation number
+        while (checkExisit) {
+            const generatedUuid = uuidv4().replace(/-/g, ""); // Remove hyphens
+            finalQuotationNumber = `QT-${generatedUuid.slice(0, 8)}`; // Limit to 8 characters after "QT-"
+            checkExisit = await Quotation.findOne({ quotationNumber: finalQuotationNumber }); // Check again with new number
+        }
+
+        const currentDate = new Date();
+        const validityPeriodCal = new Date(currentDate.setDate(currentDate.getDate() + 6));
+
         // Create a new quotation instance
         const newQuotation = new Quotation({
             BusinessOwnerDetails,
-            quotationNumber,
+            quotationNumber: finalQuotationNumber,
             customerId,
             items,
             totalAmount,
             status,
-            validityPeriod,
+            validityPeriod: validityPeriodCal,
             Roles
         });
 
@@ -64,11 +76,10 @@ exports.createQuotation = async (req, res) => {
         });
     }
 };
-
 // Get all quotations
 exports.getAllQuotations = async (req, res) => {
     try {
-        const quotations = await Quotation.find().populate('BusinessOwnerDetails customerId'); // Populate references
+        const quotations = await Quotation.find().sort({ createdAt: -1 }).populate('BusinessOwnerDetails customerId'); // Populate references
         return res.status(200).json({
             success: true,
             count: quotations.length,

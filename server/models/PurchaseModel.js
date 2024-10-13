@@ -1,7 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-// Item Schema for the purchase order
 const PurchaseItemSchema = new Schema({
   description: { type: String, required: true },
   quantity: { type: Number, required: true },

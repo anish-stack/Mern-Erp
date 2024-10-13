@@ -1,4 +1,5 @@
 const PerformaInvoice = require('../models/PerformaInvoice'); // Adjust the path to your PerformaInvoice model
+const Quotation = require('../models/Quatation.model');
 
 // Create a new performa invoice
 exports.createPerformaInvoice = async (req, res) => {
@@ -11,18 +12,16 @@ exports.createPerformaInvoice = async (req, res) => {
             totalAmount,
             status,
             validityPeriod,
-            paymentTerms,
+
             Roles
         } = req.body;
 
         const emptyFields = [];
         if (!invoiceNumber) emptyFields.push('invoiceNumber');
         if (!quotationId) emptyFields.push('quotationId');
-        if (!customerId) emptyFields.push('customerId');
         if (!items || items.length === 0) emptyFields.push('items');
         if (!totalAmount) emptyFields.push('totalAmount');
         if (!validityPeriod) emptyFields.push('validityPeriod');
-        if (!paymentTerms) emptyFields.push('paymentTerms');
 
         if (emptyFields.length > 0) {
             return res.status(400).json({
@@ -31,16 +30,22 @@ exports.createPerformaInvoice = async (req, res) => {
             });
         }
 
+        const checkquotationId = await Quotation.findById(quotationId)
+        if (!checkquotationId) {
+            return res.status(403).json({
+                message: 'invalid Quatations id'
+            })
+        }
         // Create a new performa invoice instance
         const newPerformaInvoice = new PerformaInvoice({
             invoiceNumber,
             quotationId,
-            customerId,
+
             items,
             totalAmount,
             status,
             validityPeriod,
-            paymentTerms,
+            customerId,
             Roles
         });
 
@@ -71,11 +76,20 @@ exports.createPerformaInvoice = async (req, res) => {
 // Get all performa invoices
 exports.getAllPerformaInvoices = async (req, res) => {
     try {
-        const performaInvoices = await PerformaInvoice.find().populate('quotationId customerId'); // Populate references
+        const performaInvoices = await PerformaInvoice.find()
+        .populate({
+            path: 'quotationId',
+            populate: {
+                path: 'BusinessOwnerDetails', // Adjust this to match your actual field
+                model: 'Business' // The name of your Business model
+            }
+        })
+        .populate('customerId'); 
+        
         return res.status(200).json({
             success: true,
             count: performaInvoices.length,
-            data:performaInvoices
+            data: performaInvoices
         });
     } catch (error) {
         return res.status(500).json({
@@ -101,7 +115,7 @@ exports.getSinglePerformaInvoice = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            data:performaInvoice
+            data: performaInvoice
         });
     } catch (error) {
         return res.status(500).json({
@@ -159,7 +173,7 @@ exports.deletePerformaInvoice = async (req, res) => {
 
         return res.status(200).json({
             success: true,
-            data:deletedPerformaInvoice,
+            data: deletedPerformaInvoice,
             message: 'Performa invoice deleted successfully'
         });
     } catch (error) {

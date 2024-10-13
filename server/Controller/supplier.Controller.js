@@ -1,6 +1,5 @@
 const Supplier = require('../models/SupplierSchema'); // Adjust the path to your Supplier model
 
-// Create a new supplier
 exports.createSupplier = async (req, res) => {
     try {
         // Extract supplier data from the request body
@@ -16,21 +15,51 @@ exports.createSupplier = async (req, res) => {
             Roles
         } = req.body;
 
+        // Validate required fields
         const emptyField = [];
         if (!supplierName) emptyField.push('supplierName');
-        if (!contactPerson) emptyField.push('contactperson');
+        if (!contactPerson) emptyField.push('contactPerson');
         if (!email) emptyField.push('email');
         if (!contactNumber) emptyField.push('contactNumber');
         if (!gstNumber) emptyField.push('gstNumber');
         if (!panNumber) emptyField.push('panNumber');
         if (!address) emptyField.push('address');
         if (!paymentTerms) emptyField.push('paymentTerms');
-        if (!Roles) emptyField.push('Roles');
         if (emptyField.length > 0) {
             return res.status(400).json({
                 success: false,
-                message: `Please provide the following fields: ${empty.join(", ")}`
-            })
+                message: `Please provide the following fields: ${emptyField.join(", ")}`
+            });
+        }
+
+        // Step 1: Check for existing supplier by email and contact number
+        const existingByEmailOrContact = await Supplier.findOne({
+            $or: [
+                { email },
+                { contactNumber }
+            ]
+        });
+
+        if (existingByEmailOrContact) {
+            return res.status(400).json({
+                success: false,
+                message: 'Supplier with this email or contact number already exists'
+            });
+        }
+
+        // Step 2: Check for existing supplier by GST number and PAN number
+        const existingByGstOrPan = await Supplier.findOne({
+            $or: [
+                { gstNumber },
+                { panNumber }
+            ]
+        });
+
+        if (existingByGstOrPan) {
+            return res.status(400).json({
+                success: false,
+                message: 'Supplier with this GST number or PAN number already exists'
+            });
         }
 
         // Create a new supplier instance
@@ -43,7 +72,6 @@ exports.createSupplier = async (req, res) => {
             panNumber,
             address,
             paymentTerms,
-            Roles
         });
 
         // Save the supplier to the database
@@ -58,8 +86,12 @@ exports.createSupplier = async (req, res) => {
     } catch (error) {
         // Handle errors, e.g., duplicate email or supplierName
         if (error.code === 11000) {
-            return res.status(400).json({ message: 'Supplier with this email or name already exists' });
+            return res.status(400).json({
+                success: false,
+                message: 'Supplier with this email, contact number, GST number, or PAN number already exists'
+            });
         }
+        console.log(error);
 
         // General server error
         return res.status(500).json({
@@ -69,6 +101,7 @@ exports.createSupplier = async (req, res) => {
         });
     }
 };
+
 
 // Get supplier by ID or fetch all suppliers
 // exports.getSupplier = async (req, res) => {
@@ -123,7 +156,7 @@ exports.createSupplier = async (req, res) => {
 exports.getAllSuppliers = async (req, res) => {
     try {
         // Fetch all suppliers from the database
-        const suppliers = await Supplier.find();
+        const suppliers = await Supplier.find().sort({ createdAt: -1 });
 
         // If no suppliers are found
         if (suppliers.length === 0) {

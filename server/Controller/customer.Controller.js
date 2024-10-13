@@ -2,6 +2,7 @@ const Customer = require('../models/Customer.Model'); // Adjust the path to your
 
 // Create a new customer
 exports.createCustomer = async (req, res) => {
+    console.log("i am hit")
     try {
         const {
             customerName,
@@ -21,12 +22,26 @@ exports.createCustomer = async (req, res) => {
         if (!email) emptyFields.push('email');
         if (!contactDetails) emptyFields.push('contactDetails');
         if (!businessInfo) emptyFields.push('businessInfo');
+        // Check if Roles is required and if it's empty
+        // if (!Roles || (Array.isArray(Roles) && Roles.length === 0)) emptyFields.push('Roles');
 
         if (emptyFields.length > 0) {
             return res.status(400).json({
                 success: false,
                 message: `Please provide the following fields: ${emptyFields.join(", ")}`
             });
+        }
+
+        // Check if customer with the same email or contactDetails exists
+        const existCustomer = await Customer.findOne({
+            $or: [
+                { email: email },
+                { contactDetails: contactDetails }
+            ]
+        });
+
+        if (existCustomer) {
+            return res.status(400).json({ message: 'Customer with this email or contact details already exists' });
         }
 
         // Create a new customer instance
@@ -53,7 +68,6 @@ exports.createCustomer = async (req, res) => {
             data: newCustomer
         });
     } catch (error) {
-        // Handle errors, e.g., duplicate email
         if (error.code === 11000) {
             return res.status(400).json({ message: 'Customer with this email already exists' });
         }
@@ -66,6 +80,7 @@ exports.createCustomer = async (req, res) => {
         });
     }
 };
+
 
 // Get all customers
 exports.getAllCustomers = async (req, res) => {

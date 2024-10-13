@@ -10,8 +10,8 @@ const AddressSchema = new Schema({
 }, { _id: false });
 
 const ContactSchema = new Schema({
-    phone: { type: String,unique:true },
-    email: { type: String, unique: true },
+    phone: { type: String},
+    email: { type: String, },
     secondaryPhone: { type: String },
     secondaryEmail: { type: String }
 }, { _id: false });
@@ -26,7 +26,7 @@ const BusinessInfoSchema = new Schema({
 
 const CustomerSchema = new Schema({
     customerName: { type: String, required: true },
-    email: { type: String, required: true, unique: true },
+    email: { type: String, required: true, },
     contactDetails: { type: ContactSchema, required: true },
     businessInfo: { type: BusinessInfoSchema, required: true },
     additionalAddress: { type: AddressSchema },

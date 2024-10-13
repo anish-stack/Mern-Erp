@@ -51,7 +51,7 @@ Router.post('/create-bussiness-settings',createBusiness)
 Router.get('/get-all-bussiness-settings',getAllBusinesses)
 Router.get('/get-single-bussiness-settings/:_id',getSingleBusiness)
 Router.delete('/delete-bussiness-settings/:_id',deleteBusiness)
-Router.put('/update-bussiness-settings/:_id',updateBusiness)
+Router.put('/update-bussiness-settings',updateBusiness)
 
 // challan router here 
 

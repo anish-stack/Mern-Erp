@@ -69,7 +69,7 @@ exports.createPurchaseOrder = async (req, res) => {
 // Get all purchase orders
 exports.getAllPurchaseOrders = async (req, res) => {
     try {
-        const purchaseOrders = await PurchaseOrder.find().populate('supplierId quotationId performaInvoiceId'); // Populate references
+        const purchaseOrders = await PurchaseOrder.find().sort({ createdAt: -1 }).populate('supplierId quotationId performaInvoiceId'); // Populate references
         return res.status(200).json({
             success: true,
             count: purchaseOrders.length,

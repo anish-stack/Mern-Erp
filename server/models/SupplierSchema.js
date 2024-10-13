@@ -12,12 +12,11 @@ const AddressSchema = new Schema({
 
 // Supplier Schema
 const SupplierSchema = new Schema({
-  supplierName: { type: String, required: true, unique: true },
+  supplierName: { type: String, required: true },
   contactPerson: { type: String, required: true },
   email: { type: String, required: true, unique: true },
   contactNumber: { type: String, required: true },
-  gstNumber: { type: String, required: true }, // GST number for tax purposes
-  panNumber: { type: String, required: true }, // PAN number for tax purposes
+  gstNumber: { type: String, required: true },  // PAN number for tax purposes
   address: { type: AddressSchema, required: true },
   paymentTerms: { type: String, required: true }, 
   Roles:[{type: String}],
